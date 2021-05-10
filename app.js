@@ -6,6 +6,7 @@ form.addEventListener("submit", async function(e) {
     e.preventDefault();
     const userInput = form[0].value;
     const searchResult = await axios.get("https://www.omdbapi.com/?s=" + userInput + "&apikey=150162fe");
+    document.getElementById("resultDiv").textContent = "Results for " + userInput;
     renderSearchResults(searchResult.data.Search);
 })
 
@@ -25,8 +26,8 @@ function renderSearchResults(movies) {
         img = document.createElement('img');
         if (movies[i].Poster) {
             img.src = movies[i].Poster;
-        } else {
-            img.src = "movie_placeholder.png";
+        } else if (img.src === "N/A") {
+            img.src = "https://i.imgur.com/Z2MYNbj.png/large_movie_poster.png";
         }
         const movieString = movies[i].Title + " (" + movies[i].Year + ")";
         const button = document.createElement("button"); 
