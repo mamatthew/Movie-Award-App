@@ -1,5 +1,6 @@
 const maxNominations = 5;
 let currNominations = 0;
+let nominations = [];
 const form = document.querySelector("#searchForm");
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
@@ -7,8 +8,6 @@ form.addEventListener("submit", async function(e) {
     const searchResult = await axios.get("https://www.omdbapi.com/?s=" + userInput + "&apikey=150162fe");
     renderSearchResults(searchResult.data.Search);
 })
-
-const searchResults = document.querySelector("#resultList");
 
 function renderSearchResults(movies) {
     const oldResultList = document.getElementById("resultList");
@@ -29,10 +28,13 @@ function renderSearchResults(movies) {
         } else {
             img.src = "movie_placeholder.png";
         }
-        const movieString = " " + movies[i].Title + " (" + movies[i].Year + ")";
+        const movieString = movies[i].Title + " (" + movies[i].Year + ")";
         const button = document.createElement("button"); 
+        if (nominations.includes(movieString)) {
+            button.disabled = true;
+        }
         button.textContent = "Nominate";
-        listEntry.setAttribute("id", movies[i].Title + movies[i].Year);
+        listEntry.setAttribute("id", movieString);
         listEntry.setAttribute("style", "list-style-type:none");
         listEntry.setAttribute("class", "result");
         resultList.append(listEntry);
@@ -47,7 +49,6 @@ function renderSearchResults(movies) {
 
 function addNominationListener(listEntry) {
     const button = listEntry.getElementsByTagName("button")[0];
-    console.log(button);
     button.addEventListener("click", function() {
         if (currNominations === maxNominations) {
             alert("The maximum number of nominations has already been reached!");
@@ -58,6 +59,7 @@ function addNominationListener(listEntry) {
             console.log("Success!!", nominations, button.id);
             addNominationToList(listEntry);
             alert(button.id + "has been added to the nomination list!");
+            button.disabled = true;
             currNominations++;
             if (currNominations === maxNominations) {
                 displayBanner();
@@ -69,15 +71,24 @@ function addNominationListener(listEntry) {
 }
 
 function addNominationToList(nomination) {
+    console.log(nomination);
     const nominationList = document.getElementById("nominationList");
-    nomination.getElementsByTagName("button")[0].remove();
+    const nominationElement = document.createElement("li");
+    const imageSource = nomination.getElementsByTagName("img")[0].src;
+    console.log(imageSource);
+    const movieTitle = nomination.id;
+    const img = document.createElement("img");
+    nominationElement.setAttribute("style", "list-style-type:none");
+    nominationList.append(nominationElement);
+    nominationElement.append(img);
+    nominationElement.append(movieTitle);
+    img.setAttribute("src", imageSource);
+    nomination.getElementsByTagName("button")[0].disabled = true;
     const deleteNominationButton = document.createElement("button");
     deleteNominationButton.textContent = "Remove Nomination";
-    nominationList.append(nomination);
-    nomination.append(deleteNominationButton);
-    addRemoveNominationListener(nomination);
-
-
+    deleteNominationButton.setAttribute("id", movieTitle);
+    nominationElement.append(deleteNominationButton);
+    addRemoveNominationListener(nominationElement);
 }
 
 function displayBanner(){
@@ -92,13 +103,20 @@ function displayBanner(){
 function addRemoveNominationListener(nominee) {
     const button = nominee.getElementsByTagName("button")[0];
     button.addEventListener("click", function() {
-        button.parentElement.remove();
         const movieTitle = button.id;
+        button.parentElement.remove();
         const index = nominations.indexOf(movieTitle);
         nominations.splice(index,1);
         currNominations--;
         const banner = document.getElementById("banner");
-        banner.remove();
+        if (banner != null) {
+            banner.remove();
+        }        
+        const resultEntryToEnable = document.getElementById(movieTitle);
+        console.log(resultEntryToEnable.getElemen);
+        const buttonToEnable = resultEntryToEnable.getElementsByTagName("button")[0];
+        buttonToEnable.disabled = false;
+        
         
     })
 }
@@ -106,5 +124,3 @@ function addRemoveNominationListener(nominee) {
 function clearResults(resultList) {
     resultList.remove();
 }
-
-let nominations = [];
