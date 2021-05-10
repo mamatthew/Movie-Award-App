@@ -4,7 +4,7 @@ const form = document.querySelector("#searchForm");
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
     const userInput = form[0].value;
-    const searchResult = await axios.get("http://www.omdbapi.com/?s=" + userInput + "&apikey=150162fe");
+    const searchResult = await axios.get("https://www.omdbapi.com/?s=" + userInput + "&apikey=150162fe");
     renderSearchResults(searchResult.data.Search);
 })
 
